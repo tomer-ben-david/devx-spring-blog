@@ -138,7 +138,7 @@ public class BlogService {
             author = blogProperties.getDefaultAuthor();
         }
 
-        List<String> tags = frontMatter.getOrDefault("tags", List.of());
+        List<String> tags = parseTags(frontMatter.getOrDefault("tags", List.of()));
         boolean draft = "true".equalsIgnoreCase(getFirstValue(frontMatter, "draft"));
 
         // Parse optional updatedDate
@@ -163,5 +163,50 @@ public class BlogService {
     private String getFirstValue(Map<String, List<String>> frontMatter, String key) {
         List<String> values = frontMatter.get(key);
         return (values != null && !values.isEmpty()) ? values.get(0) : null;
+    }
+
+    /**
+     * Parse tags from frontmatter. Handles both:
+     * - Proper YAML list format (already a List<String>)
+     * - JSON array format on single line: ["tag1", "tag2"]
+     */
+    private List<String> parseTags(List<String> rawTags) {
+        if (rawTags == null || rawTags.isEmpty()) {
+            return List.of();
+        }
+
+        // If it's already multiple items, it was parsed correctly
+        if (rawTags.size() > 1) {
+            return rawTags;
+        }
+
+        // Single item - might be a JSON array string
+        String first = rawTags.get(0);
+        if (first == null || first.isBlank()) {
+            return List.of();
+        }
+
+        // Check if it looks like a JSON array: ["tag1", "tag2"]
+        first = first.trim();
+        if (first.startsWith("[") && first.endsWith("]")) {
+            // Parse JSON-like array
+            String inner = first.substring(1, first.length() - 1);
+            List<String> tags = new ArrayList<>();
+            for (String part : inner.split(",")) {
+                String tag = part.trim();
+                // Remove quotes
+                if ((tag.startsWith("\"") && tag.endsWith("\"")) ||
+                    (tag.startsWith("'") && tag.endsWith("'"))) {
+                    tag = tag.substring(1, tag.length() - 1);
+                }
+                if (!tag.isBlank()) {
+                    tags.add(tag);
+                }
+            }
+            return tags;
+        }
+
+        // Single tag as-is
+        return List.of(first);
     }
 }
