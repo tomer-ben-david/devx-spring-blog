@@ -26,23 +26,21 @@
     <main class="sb-post-container">
         <article class="sb-post">
             <header class="sb-post-header">
+                <div class="sb-post-meta">
+                    <time class="sb-post-date" th:text="${#temporals.format(post.pubDate, 'MMMM d, yyyy')}">December 14, 2025</time>
+                    <span class="sb-post-author" th:if="${post.author != null and !post.author.isEmpty()}"
+                          th:text="${post.author}">Author</span>
+                </div>
+                <h1 class="sb-post-title" th:text="${post.title}">Post Title</h1>
+                <p class="sb-post-description" th:if="${post.description != null and !post.description.isEmpty()}"
+                   th:text="${post.description}">Post description</p>
+                <div class="sb-post-tags" th:if="${post.tags != null and !post.tags.isEmpty()}">
+                    <span th:each="tag : ${post.tags}" class="sb-blog-tag" th:text="${tag}">Tag</span>
+                </div>
                 <img th:if="${post.heroImage != null and !post.heroImage.isEmpty()}"
                      th:src="${post.heroImage}"
                      th:alt="${post.title}"
                      class="sb-post-hero-image"/>
-                <h1 class="sb-post-title" th:text="${post.title}">Post Title</h1>
-                <div class="sb-post-meta">
-                    <time class="sb-post-date" th:text="${#temporals.format(post.pubDate, 'MMMM d, yyyy')}">December 14, 2025</time>
-                    <span th:if="${post.updatedDate != null and post.updatedDate != post.pubDate}" class="sb-post-updated">
-                        (Updated: <time th:text="${#temporals.format(post.updatedDate, 'MMMM d, yyyy')}">December 15, 2025</time>)
-                    </span>
-                    <span class="sb-post-author" th:if="${post.author != null and !post.author.isEmpty()}">
-                        by <span th:text="${post.author}">Author</span>
-                    </span>
-                </div>
-                <div class="sb-post-tags" th:if="${post.tags != null and !post.tags.isEmpty()}">
-                    <span th:each="tag : ${post.tags}" class="sb-blog-tag" th:text="${tag}">Tag</span>
-                </div>
             </header>
 
             <div class="sb-post-content" th:utext="${post.htmlContent}">
