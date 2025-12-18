@@ -1,0 +1,429 @@
+/* Shared Spring Blog - CSS
+ * All classes prefixed with sb- to avoid conflicts
+ */
+
+/* ============================================
+   Blog Container & Layout
+   ============================================ */
+
+.sb-blog-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+.sb-blog-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.sb-blog-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 0.5rem;
+}
+
+.sb-blog-description {
+    font-size: 1.125rem;
+    color: #6b7280;
+}
+
+/* ============================================
+   Blog Post Cards (Index Page)
+   ============================================ */
+
+.sb-blog-posts {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.sb-blog-card {
+    padding: 1.5rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    transition: box-shadow 0.2s ease;
+}
+
+.sb-blog-card:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.sb-blog-card-link {
+    text-decoration: none;
+}
+
+.sb-blog-card-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 0.5rem;
+    transition: color 0.2s ease;
+}
+
+.sb-blog-card-link:hover .sb-blog-card-title {
+    color: #2563eb;
+}
+
+.sb-blog-card-meta {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-bottom: 0.75rem;
+}
+
+.sb-blog-card-date {
+    margin-right: 0.5rem;
+}
+
+.sb-blog-card-author {
+    margin-left: 0.5rem;
+}
+
+.sb-blog-card-description {
+    color: #4b5563;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.sb-blog-card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.sb-blog-tag {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background-color: #f3f4f6;
+    color: #4b5563;
+    font-size: 0.75rem;
+    border-radius: 9999px;
+}
+
+.sb-blog-empty {
+    text-align: center;
+    padding: 3rem;
+    color: #6b7280;
+}
+
+/* ============================================
+   Single Post Page
+   ============================================ */
+
+.sb-post-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+.sb-post {
+    margin-bottom: 3rem;
+}
+
+.sb-post-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.sb-post-title {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+}
+
+.sb-post-meta {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-bottom: 1rem;
+}
+
+.sb-post-date {
+    margin-right: 0.5rem;
+}
+
+.sb-post-author {
+    margin-left: 0.5rem;
+}
+
+.sb-post-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+/* ============================================
+   Post Content (Markdown Rendered)
+   ============================================ */
+
+.sb-post-content {
+    line-height: 1.8;
+    color: #374151;
+}
+
+.sb-post-content h1,
+.sb-post-content h2,
+.sb-post-content h3,
+.sb-post-content h4,
+.sb-post-content h5,
+.sb-post-content h6 {
+    color: #111827;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.sb-post-content h2 {
+    font-size: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.sb-post-content h3 {
+    font-size: 1.25rem;
+}
+
+.sb-post-content p {
+    margin-bottom: 1.25rem;
+}
+
+.sb-post-content a {
+    color: #2563eb;
+    text-decoration: underline;
+}
+
+.sb-post-content a:hover {
+    color: #1d4ed8;
+}
+
+.sb-post-content ul,
+.sb-post-content ol {
+    margin-bottom: 1.25rem;
+    padding-left: 1.5rem;
+}
+
+.sb-post-content li {
+    margin-bottom: 0.5rem;
+}
+
+.sb-post-content blockquote {
+    border-left: 4px solid #e5e7eb;
+    padding-left: 1rem;
+    margin: 1.5rem 0;
+    color: #6b7280;
+    font-style: italic;
+}
+
+.sb-post-content pre {
+    background-color: #1f2937;
+    color: #f9fafb;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+    margin-bottom: 1.25rem;
+}
+
+.sb-post-content code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.875em;
+}
+
+.sb-post-content :not(pre) > code {
+    background-color: #f3f4f6;
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    color: #dc2626;
+}
+
+.sb-post-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.5rem;
+    margin: 1.5rem 0;
+}
+
+.sb-post-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.25rem;
+}
+
+.sb-post-content th,
+.sb-post-content td {
+    border: 1px solid #e5e7eb;
+    padding: 0.75rem;
+    text-align: left;
+}
+
+.sb-post-content th {
+    background-color: #f9fafb;
+    font-weight: 600;
+}
+
+/* ============================================
+   Post Navigation
+   ============================================ */
+
+.sb-post-nav {
+    padding-top: 2rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.sb-post-nav-link {
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.sb-post-nav-link:hover {
+    text-decoration: underline;
+}
+
+/* ============================================
+   Social Sharing
+   ============================================ */
+
+.sb-social-sharing {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background-color: #f9fafb;
+    border-radius: 0.5rem;
+}
+
+.sb-social-sharing-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 1rem;
+}
+
+.sb-social-sharing-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.sb-social-btn {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+}
+
+.sb-social-btn:hover {
+    opacity: 0.9;
+}
+
+.sb-social-twitter {
+    background-color: #1da1f2;
+    color: white;
+}
+
+.sb-social-linkedin {
+    background-color: #0077b5;
+    color: white;
+}
+
+.sb-social-facebook {
+    background-color: #1877f2;
+    color: white;
+}
+
+.sb-social-medium {
+    background-color: #000000;
+    color: white;
+}
+
+/* ============================================
+   Disqus Comments
+   ============================================ */
+
+.sb-disqus-comments {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+/* ============================================
+   404 Not Found
+   ============================================ */
+
+.sb-not-found-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 4rem 1rem;
+    text-align: center;
+}
+
+.sb-not-found-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 1rem;
+}
+
+.sb-not-found-message {
+    color: #6b7280;
+    margin-bottom: 1rem;
+}
+
+.sb-not-found-slug {
+    color: #6b7280;
+    margin-bottom: 2rem;
+}
+
+.sb-not-found-slug code {
+    background-color: #f3f4f6;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.sb-not-found-link {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background-color: #2563eb;
+    color: white;
+    text-decoration: none;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+
+.sb-not-found-link:hover {
+    background-color: #1d4ed8;
+}
+
+/* ============================================
+   Responsive Design
+   ============================================ */
+
+@media (max-width: 640px) {
+    .sb-blog-title {
+        font-size: 2rem;
+    }
+
+    .sb-post-title {
+        font-size: 1.75rem;
+    }
+
+    .sb-blog-card {
+        padding: 1rem;
+    }
+
+    .sb-social-sharing-buttons {
+        flex-direction: column;
+    }
+
+    .sb-social-btn {
+        text-align: center;
+    }
+}

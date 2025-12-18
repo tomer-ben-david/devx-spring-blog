@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <div th:fragment="social-sharing" class="sb-social-sharing">
+        <h3 class="sb-social-sharing-title">Share this post</h3>
+        <div class="sb-social-sharing-buttons">
+            <a th:href="${'https://twitter.com/intent/tweet?url=' + #uris.escapeQueryParam(publisherUrl + post.url) + '&text=' + #uris.escapeQueryParam(post.title)}"
+               target="_blank" rel="noopener noreferrer" class="sb-social-btn sb-social-twitter"
+               aria-label="Share on Twitter">
+                Twitter
+            </a>
+            <a th:href="${'https://www.linkedin.com/sharing/share-offsite/?url=' + #uris.escapeQueryParam(publisherUrl + post.url)}"
+               target="_blank" rel="noopener noreferrer" class="sb-social-btn sb-social-linkedin"
+               aria-label="Share on LinkedIn">
+                LinkedIn
+            </a>
+            <a th:href="${'https://www.facebook.com/sharer/sharer.php?u=' + #uris.escapeQueryParam(publisherUrl + post.url)}"
+               target="_blank" rel="noopener noreferrer" class="sb-social-btn sb-social-facebook"
+               aria-label="Share on Facebook">
+                Facebook
+            </a>
+            <a th:if="${mediumUrl != null and !mediumUrl.isEmpty()}"
+               th:href="${mediumUrl}" target="_blank" rel="noopener noreferrer"
+               class="sb-social-btn sb-social-medium"
+               aria-label="Read on Medium">
+                Medium
+            </a>
+        </div>
+    </div>
+</body>
+</html>

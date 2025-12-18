@@ -1,0 +1,341 @@
+name: Discord Notifications
+
+on:
+  # Manual trigger - allows sending notification for any commit
+  workflow_dispatch:
+    inputs:
+      commit_sha:
+        description: 'Commit SHA to notify about (optional, defaults to latest)'
+        required: false
+        type: string
+
+  # Issues - ALL possible issue events
+  issues:
+    types: [opened, closed, reopened, assigned, unassigned, locked, unlocked, transferred, milestoned, demilestoned]
+
+  # Issue comments - ALL comment events
+  issue_comment:
+    types: [created, edited, deleted]
+
+  # Pull requests - Important events only (excluded 'synchronize' to avoid noise on every commit)
+  pull_request:
+    types: [opened, closed, reopened, ready_for_review, assigned, unassigned, review_requested, review_request_removed, converted_to_draft, locked, unlocked, auto_merge_enabled, auto_merge_disabled, edited]
+
+  # PR reviews - ALL review events
+  pull_request_review:
+    types: [submitted, edited, dismissed]
+
+  # PR review comments - ALL review comment events
+  pull_request_review_comment:
+    types: [created, edited, deleted]
+
+  # Pushes to main/master - ALL pushes
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Send Discord and Slack Notifications
+        env:
+          PR_TITLE_JSON: ${{ toJSON(github.event.pull_request.title) }}
+          PR_BODY_JSON: ${{ toJSON(github.event.pull_request.body) }}
+          ISSUE_TITLE_JSON: ${{ toJSON(github.event.issue.title) }}
+          ISSUE_BODY_JSON: ${{ toJSON(github.event.issue.body) }}
+          COMMENT_BODY_JSON: ${{ toJSON(github.event.comment.body) }}
+          REVIEW_BODY_JSON: ${{ toJSON(github.event.review.body) }}
+          COMMIT_MESSAGE_JSON: ${{ toJSON(github.event.head_commit.message) }}
+          COMMITS_JSON: ${{ toJSON(github.event.commits) }}
+          DISCORD_WEBHOOK_URL: ${{ secrets[vars.DISCORD_WEBHOOK_SECRET_NAME || 'DISCORD_WEBHOOK_URL'] }}
+          SLACK_WEBHOOK_URL: ${{ secrets[vars.SLACK_WEBHOOK_SECRET_NAME || 'SLACK_WEBHOOK_URL'] }}
+        run: |
+          # Set variables
+          EVENT_TYPE="${{ github.event_name }}"
+          ACTION="${{ github.event.action }}"
+          REPO="${{ github.repository }}"
+          REPO_URL="https://github.com/${{ github.repository }}"
+          
+          # Determine color based on action (Discord uses decimal integers)
+          if [ "$ACTION" = "opened" ]; then
+            COLOR=3447003  # Blue (#3498DB) - new issue/PR
+          elif [ "$ACTION" = "closed" ] || [ "${{ github.event.pull_request.merged }}" = "true" ]; then
+            COLOR=5763719  # Green (#57F287) - closed/merged
+          elif [ "$ACTION" = "reopened" ]; then
+            COLOR=16776984  # Yellow (#FEE75C)
+          else
+            COLOR=5793266  # Blurple (#5865F2) - default
+          fi
+          
+          # Build title, description, and URL based on event type
+          if [ "$EVENT_TYPE" = "pull_request" ]; then
+            PR_TITLE=$(echo "$PR_TITLE_JSON" | jq -r '.')
+            TITLE="PR #${{ github.event.pull_request.number }}: $PR_TITLE"
+            AUTHOR="${{ github.event.pull_request.user.login }}"
+            AUTHOR_URL="${{ github.event.pull_request.user.html_url }}"
+            URL="${{ github.event.pull_request.html_url }}"
+            BODY=$(echo "$PR_BODY_JSON" | jq -r '.')
+            LABELS="${{ join(github.event.pull_request.labels.*.name, ', ') }}"
+            MERGED="${{ github.event.pull_request.merged }}"
+            
+            DESCRIPTION="**Action:** \`$ACTION\`"
+            if [ "$MERGED" = "true" ]; then
+              DESCRIPTION="$DESCRIPTION ✅ **Merged**"
+            elif [ "$ACTION" = "closed" ]; then
+              DESCRIPTION="$DESCRIPTION ❌ **Closed**"
+            fi
+            DESCRIPTION="$DESCRIPTION\n**Author:** [$AUTHOR]($AUTHOR_URL)\n**Repository:** [$REPO]($REPO_URL)"
+            if [ -n "$LABELS" ] && [ "$LABELS" != "" ]; then
+              DESCRIPTION="$DESCRIPTION\n**Labels:** $LABELS"
+            fi
+            if [ -n "$BODY" ] && [ ${#BODY} -lt 400 ]; then
+              DESCRIPTION="$DESCRIPTION\n\n$BODY"
+            fi
+            
+          elif [ "$EVENT_TYPE" = "issues" ]; then
+            ISSUE_TITLE=$(echo "$ISSUE_TITLE_JSON" | jq -r '.')
+            TITLE="Issue #${{ github.event.issue.number }}: $ISSUE_TITLE"
+            AUTHOR="${{ github.event.issue.user.login }}"
+            AUTHOR_URL="${{ github.event.issue.user.html_url }}"
+            URL="${{ github.event.issue.html_url }}"
+            BODY=$(echo "$ISSUE_BODY_JSON" | jq -r '.')
+            LABELS="${{ join(github.event.issue.labels.*.name, ', ') }}"
+            
+            DESCRIPTION="**Action:** \`$ACTION\`\n**Author:** [$AUTHOR]($AUTHOR_URL)\n**Repository:** [$REPO]($REPO_URL)"
+            if [ -n "$LABELS" ] && [ "$LABELS" != "" ]; then
+              DESCRIPTION="$DESCRIPTION\n**Labels:** $LABELS"
+            fi
+            if [ -n "$BODY" ] && [ ${#BODY} -lt 400 ]; then
+              DESCRIPTION="$DESCRIPTION\n\n$BODY"
+            fi
+            
+          elif [ "$EVENT_TYPE" = "push" ]; then
+            TITLE="Push to \`${{ github.ref_name }}\`"
+            # Use jq to count commits array
+            COMMITS_COUNT=$(echo "$COMMITS_JSON" | jq 'length')
+            PUSHER="${{ github.event.pusher.name }}"
+            LATEST_COMMIT="${{ github.event.head_commit.id }}"
+            COMMIT_URL="https://github.com/$REPO/commit/$LATEST_COMMIT"
+
+            # Build commit summary: single-line commits first, then multi-line commits
+            # Separate single-line and multi-line commits
+            SINGLE_LINE=$(echo "$COMMITS_JSON" | jq -r '.[] | select((.message | split("\n") | length) == 1) | "• [`" + (.id[:7]) + "`](https://github.com/${{ github.repository }}/commit/" + .id + ") " + .message')
+            MULTI_LINE=$(echo "$COMMITS_JSON" | jq -r '.[] | select((.message | split("\n") | length) > 1) | 
+              "• [`" + (.id[:7]) + "`](https://github.com/${{ github.repository }}/commit/" + .id + ") " + (.message | split("\n")[0]) + "\n" + 
+              ((.message | split("\n")[1:]) | map("  " + .) | join("\n"))')
+            
+            # Combine: single-line first, then multi-line, limit total size
+            if [ -n "$SINGLE_LINE" ] && [ -n "$MULTI_LINE" ]; then
+              COMMITS_SUMMARY=$(printf "%s\n\n%s" "$SINGLE_LINE" "$MULTI_LINE" | head -c 2000)
+            elif [ -n "$SINGLE_LINE" ]; then
+              COMMITS_SUMMARY=$(echo "$SINGLE_LINE" | head -c 2000)
+            elif [ -n "$MULTI_LINE" ]; then
+              COMMITS_SUMMARY=$(echo "$MULTI_LINE" | head -c 2000)
+            else
+              COMMITS_SUMMARY=""
+            fi
+
+            if [ "$COMMITS_COUNT" -eq 1 ]; then
+              DESCRIPTION="**Commits:** 1\n**Pusher:** $PUSHER\n**Repository:** [$REPO]($REPO_URL)\n\n$COMMITS_SUMMARY"
+            else
+              DESCRIPTION="**Commits:** $COMMITS_COUNT\n**Pusher:** $PUSHER\n**Repository:** [$REPO]($REPO_URL)\n\n$COMMITS_SUMMARY"
+            fi
+            URL="$COMMIT_URL"
+
+          elif [ "$EVENT_TYPE" = "workflow_dispatch" ]; then
+            # Manual trigger - get commit info from git
+            COMMIT_SHA="${{ inputs.commit_sha }}"
+            if [ -z "$COMMIT_SHA" ]; then
+              COMMIT_SHA=$(git rev-parse HEAD)
+            fi
+
+            TITLE="Manual Notification: Commit \`${COMMIT_SHA:0:7}\`"
+            AUTHOR=$(git log -1 --format='%an' $COMMIT_SHA)
+            COMMIT_MESSAGE=$(git log -1 --format='%B' $COMMIT_SHA | head -c 500)
+            COMMIT_URL="https://github.com/$REPO/commit/$COMMIT_SHA"
+
+            DESCRIPTION="**Triggered by:** ${{ github.actor }}\n**Author:** $AUTHOR\n**Repository:** [$REPO]($REPO_URL)\n\n**Commit message:** $COMMIT_MESSAGE"
+            URL="$COMMIT_URL"
+
+          elif [ "$EVENT_TYPE" = "issue_comment" ]; then
+            TITLE="Comment on Issue #${{ github.event.issue.number }}"
+            AUTHOR="${{ github.event.comment.user.login }}"
+            AUTHOR_URL="${{ github.event.comment.user.html_url }}"
+            URL="${{ github.event.comment.html_url }}"
+            BODY=$(echo "$COMMENT_BODY_JSON" | jq -r '.')
+
+            DESCRIPTION="**Action:** \`$ACTION\`\n**Author:** [$AUTHOR]($AUTHOR_URL)\n**Repository:** [$REPO]($REPO_URL)"
+            if [ -n "$BODY" ] && [ ${#BODY} -lt 400 ]; then
+              DESCRIPTION="$DESCRIPTION\n\n$BODY"
+            fi
+            
+          elif [ "$EVENT_TYPE" = "pull_request_review" ]; then
+            TITLE="PR Review: #${{ github.event.pull_request.number }}"
+            AUTHOR="${{ github.event.review.user.login }}"
+            AUTHOR_URL="${{ github.event.review.user.html_url }}"
+            URL="${{ github.event.review.html_url }}"
+            STATE="${{ github.event.review.state }}"
+            BODY=$(echo "$REVIEW_BODY_JSON" | jq -r '.')
+
+            DESCRIPTION="**Action:** \`$ACTION\`\n**State:** \`$STATE\`\n**Author:** [$AUTHOR]($AUTHOR_URL)\n**Repository:** [$REPO]($REPO_URL)"
+            if [ -n "$BODY" ] && [ ${#BODY} -lt 400 ]; then
+              DESCRIPTION="$DESCRIPTION\n\n$BODY"
+            fi
+            
+          elif [ "$EVENT_TYPE" = "pull_request_review_comment" ]; then
+            TITLE="PR Review Comment: #${{ github.event.pull_request.number }}"
+            AUTHOR="${{ github.event.comment.user.login }}"
+            AUTHOR_URL="${{ github.event.comment.user.html_url }}"
+            URL="${{ github.event.comment.html_url }}"
+            BODY=$(echo "$COMMENT_BODY_JSON" | jq -r '.')
+
+            DESCRIPTION="**Action:** \`$ACTION\`\n**Author:** [$AUTHOR]($AUTHOR_URL)\n**Repository:** [$REPO]($REPO_URL)"
+            if [ -n "$BODY" ] && [ ${#BODY} -lt 400 ]; then
+              DESCRIPTION="$DESCRIPTION\n\n$BODY"
+            fi
+            
+          else
+            TITLE="GitHub Event"
+            DESCRIPTION="**Event:** \`$EVENT_TYPE\`\n**Action:** \`$ACTION\`\n**Repository:** [$REPO]($REPO_URL)"
+            URL="$REPO_URL"
+          fi
+          
+          # Get timestamp
+          TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          
+          # Build JSON payload using jq (handles escaping properly)
+          # Convert \n to actual newlines, jq will escape them correctly for JSON
+          DESCRIPTION_FOR_JSON=$(echo -e "$DESCRIPTION")
+          
+          PAYLOAD=$(jq -n \
+            --arg title "$TITLE" \
+            --arg description "$DESCRIPTION_FOR_JSON" \
+            --argjson color "$COLOR" \
+            --arg url "$URL" \
+            --arg timestamp "$TIMESTAMP" \
+            '{
+              embeds: [{
+                title: $title,
+                description: $description,
+                color: $color,
+                url: $url,
+                timestamp: $timestamp,
+                footer: {
+                  text: "GitHub",
+                  icon_url: "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
+                }
+              }]
+            }')
+          
+          # Send to Discord (if configured)
+          if [ -n "$DISCORD_WEBHOOK_URL" ] && [ "$DISCORD_WEBHOOK_URL" != "" ]; then
+            curl -X POST \
+              -H "Content-Type: application/json" \
+              -d "$PAYLOAD" \
+              "$DISCORD_WEBHOOK_URL" || echo "Failed to send Discord notification"
+          fi
+          
+          # Send to Slack (if configured)
+          if [ -n "$SLACK_WEBHOOK_URL" ] && [ "$SLACK_WEBHOOK_URL" != "" ]; then
+            # Convert Discord embed format to Slack format
+            SLACK_TITLE=$(echo "$PAYLOAD" | jq -r '.embeds[0].title // "GitHub Event"')
+            SLACK_DESCRIPTION=$(echo "$PAYLOAD" | jq -r '.embeds[0].description // ""')
+            SLACK_URL=$(echo "$PAYLOAD" | jq -r '.embeds[0].url // ""')
+            
+            # Convert markdown to Slack mrkdwn format
+            # **bold** -> *bold*, `code` stays as `code`, [text](url) -> <url|text>
+            # Handle escaped newlines - convert \n to actual newlines
+            SLACK_DESCRIPTION_FORMATTED=$(echo -e "$SLACK_DESCRIPTION" | \
+              sed 's/\\n/\n/g' | \
+              sed 's/\*\*\([^*]*\)\*\*/*\1*/g' | \
+              sed 's/\[\([^]]*\)](\([^)]*\))/<\2|\1>/g')
+            
+            # Build Slack message with proper formatting using Block Kit for better appearance
+            # Determine color based on action (matching Discord colors)
+            if [ "$ACTION" = "opened" ]; then
+              SLACK_COLOR="#3498DB"  # Blue
+            elif [ "$ACTION" = "closed" ] || [ "${{ github.event.pull_request.merged }}" = "true" ]; then
+              SLACK_COLOR="#57F287"  # Green
+            elif [ "$ACTION" = "reopened" ]; then
+              SLACK_COLOR="#FEE75C"  # Yellow
+            else
+              SLACK_COLOR="#5865F2"  # Blurple
+            fi
+            
+            # Build Slack Block Kit payload for rich formatting
+            # Start with base blocks
+            SLACK_BLOCKS_BASE=$(jq -n \
+              --arg title "$SLACK_TITLE" \
+              --arg description "$SLACK_DESCRIPTION_FORMATTED" \
+              --arg timestamp "$TIMESTAMP" \
+              '{
+                blocks: [
+                  {
+                    type: "header",
+                    text: {
+                      type: "plain_text",
+                      text: $title,
+                      emoji: true
+                    }
+                  },
+                  {
+                    type: "section",
+                    text: {
+                      type: "mrkdwn",
+                      text: $description
+                    }
+                  },
+                  {
+                    type: "context",
+                    elements: [
+                      {
+                        type: "image",
+                        image_url: "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
+                        alt_text: "GitHub"
+                      },
+                      {
+                        type: "mrkdwn",
+                        text: ("GitHub • " + $timestamp)
+                      }
+                    ]
+                  }
+                ]
+              }')
+            
+            # Add button if URL exists
+            if [ -n "$SLACK_URL" ] && [ "$SLACK_URL" != "null" ] && [ "$SLACK_URL" != "" ]; then
+              SLACK_BLOCKS=$(echo "$SLACK_BLOCKS_BASE" | jq \
+                --arg url "$SLACK_URL" \
+                '.blocks += [{
+                  type: "actions",
+                  elements: [
+                    {
+                      type: "button",
+                      text: {
+                        type: "plain_text",
+                        text: "View on GitHub",
+                        emoji: true
+                      },
+                      url: $url,
+                      style: "primary"
+                    }
+                  ]
+                }]')
+            else
+              SLACK_BLOCKS="$SLACK_BLOCKS_BASE"
+            fi
+            
+            # Send to Slack using Block Kit for rich formatting
+            curl -X POST \
+              -H "Content-Type: application/json" \
+              -d "$SLACK_BLOCKS" \
+              "$SLACK_WEBHOOK_URL" || echo "Failed to send Slack notification"
+          fi

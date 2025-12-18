@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/head :: head}"/>
+    <title th:text="${blogTitle}">Blog</title>
+</head>
+<body>
+    <th:block th:replace="~{fragments/header :: header}"/>
+
+    <main class="sb-blog-container">
+        <div class="sb-blog-header">
+            <h1 class="sb-blog-title" th:text="${blogTitle}">Blog</h1>
+            <p class="sb-blog-description" th:text="${blogDescription}">Blog description</p>
+        </div>
+
+        <div class="sb-blog-posts">
+            <article th:each="post : ${posts}" class="sb-blog-card">
+                <a th:href="@{/blog/{slug}(slug=${post.slug})}" class="sb-blog-card-link">
+                    <h2 class="sb-blog-card-title" th:text="${post.title}">Post Title</h2>
+                </a>
+                <div class="sb-blog-card-meta">
+                    <time class="sb-blog-card-date" th:text="${#temporals.format(post.pubDate, 'MMMM d, yyyy')}">December 14, 2025</time>
+                    <span class="sb-blog-card-author" th:if="${post.author != null and !post.author.isEmpty()}">
+                        by <span th:text="${post.author}">Author</span>
+                    </span>
+                </div>
+                <p class="sb-blog-card-description" th:text="${post.description}">Post description</p>
+                <div class="sb-blog-card-tags" th:if="${post.tags != null and !post.tags.isEmpty()}">
+                    <span th:each="tag : ${post.tags}" class="sb-blog-tag" th:text="${tag}">Tag</span>
+                </div>
+            </article>
+        </div>
+
+        <div th:if="${#lists.isEmpty(posts)}" class="sb-blog-empty">
+            <p>No blog posts yet. Check back soon!</p>
+        </div>
+    </main>
+
+    <th:block th:replace="~{fragments/footer :: footer}"/>
+</body>
+</html>
