@@ -7,16 +7,15 @@
    ============================================ */
 
 .sb-blog-container {
-    max-width: 800px;
+    max-width: 1200px;
     margin: 0 auto;
     padding: 2rem 1rem;
 }
 
 .sb-blog-header {
     text-align: center;
-    margin-bottom: 3rem;
-    padding-bottom: 2rem;
-    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
 }
 
 .sb-blog-title {
@@ -29,43 +28,136 @@
 .sb-blog-description {
     font-size: 1.125rem;
     color: #6b7280;
+    margin-bottom: 1.5rem;
 }
 
 /* ============================================
-   Blog Post Cards (Index Page)
+   Subscribe Box
+   ============================================ */
+
+.sb-subscribe-box {
+    background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%);
+    border-radius: 0.75rem;
+    padding: 2rem;
+    margin: 1.5rem 0 2rem;
+    text-align: center;
+}
+
+.sb-subscribe-box h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #0f172a;
+    margin-bottom: 0.5rem;
+}
+
+.sb-subscribe-box p {
+    color: #64748b;
+    margin-bottom: 1.25rem;
+}
+
+.sb-subscribe-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.sb-subscribe-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.sb-subscribe-btn-medium {
+    background-color: #000;
+    color: #fff;
+}
+
+.sb-subscribe-btn-medium:hover {
+    background-color: #333;
+}
+
+.sb-subscribe-btn-rss {
+    background-color: #f97316;
+    color: #fff;
+}
+
+.sb-subscribe-btn-rss:hover {
+    background-color: #ea580c;
+}
+
+/* ============================================
+   Social Sharing (Header)
+   ============================================ */
+
+.sb-social-share-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.sb-social-share-header span {
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+.sb-share-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    color: #374151;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.sb-share-btn:hover {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+}
+
+/* ============================================
+   Blog Post Cards (Index Page) - Grid Layout
    ============================================ */
 
 .sb-blog-posts {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 1.5rem;
 }
 
 .sb-blog-card {
+    background: #fff;
     padding: 1.5rem;
     border: 1px solid #e5e7eb;
-    border-radius: 0.5rem;
-    transition: box-shadow 0.2s ease;
+    border-radius: 0.75rem;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+    display: flex;
+    flex-direction: column;
 }
 
 .sb-blog-card:hover {
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
 }
 
-.sb-blog-card-link {
-    text-decoration: none;
-}
-
-.sb-blog-card-title {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #111827;
-    margin-bottom: 0.5rem;
-    transition: color 0.2s ease;
-}
-
-.sb-blog-card-link:hover .sb-blog-card-title {
-    color: #2563eb;
+.sb-blog-card-image {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
 }
 
 .sb-blog-card-meta {
@@ -75,38 +167,78 @@
 }
 
 .sb-blog-card-date {
-    margin-right: 0.5rem;
+    color: #6b7280;
 }
 
 .sb-blog-card-author {
+    color: #3b82f6;
+    font-weight: 500;
     margin-left: 0.5rem;
+}
+
+.sb-blog-card-link {
+    text-decoration: none;
+}
+
+.sb-blog-card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 0.75rem;
+    line-height: 1.4;
+    transition: color 0.2s ease;
+}
+
+.sb-blog-card-link:hover .sb-blog-card-title {
+    color: #3b82f6;
 }
 
 .sb-blog-card-description {
     color: #4b5563;
     line-height: 1.6;
     margin-bottom: 1rem;
+    flex-grow: 1;
 }
 
 .sb-blog-card-tags {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
+    margin-bottom: 1rem;
 }
 
 .sb-blog-tag {
     display: inline-block;
     padding: 0.25rem 0.75rem;
-    background-color: #f3f4f6;
-    color: #4b5563;
+    background-color: #ecfeff;
+    color: #0891b2;
     font-size: 0.75rem;
+    font-weight: 500;
     border-radius: 9999px;
+}
+
+.sb-blog-card-footer {
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid #f3f4f6;
+}
+
+.sb-read-more {
+    color: #3b82f6;
+    font-weight: 500;
+    text-decoration: none;
+    font-size: 0.875rem;
+}
+
+.sb-read-more:hover {
+    text-decoration: underline;
 }
 
 .sb-blog-empty {
     text-align: center;
     padding: 3rem;
     color: #6b7280;
+    grid-column: 1 / -1;
 }
 
 /* ============================================
