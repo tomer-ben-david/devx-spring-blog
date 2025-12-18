@@ -6,10 +6,13 @@ A reusable Spring Boot library for adding blog functionality to your application
 
 - **Markdown Blog Posts** - Write posts in markdown with YAML front matter
 - **Thymeleaf Templates** - Pre-built templates for blog index, individual posts, and 404 pages
+- **SEO Optimized** - JSON-LD structured data, Open Graph tags, canonical URLs
+- **Hero Images** - Optional hero/featured images for posts
 - **Disqus Comments** - Built-in comment integration (enabled by default)
 - **Social Sharing** - Twitter, LinkedIn, Facebook, Medium share buttons
 - **RSS Feed** - Auto-generated RSS feed at `/blog/rss.xml`
 - **Draft Support** - Keep posts in draft until ready to publish
+- **Proxy-Aware URLs** - Works correctly behind reverse proxies (Nginx, Traefik, etc.)
 
 ## Requirements
 
@@ -90,6 +93,8 @@ Create markdown files in `src/main/resources/content/blog/`:
 title: "My First Post"
 description: "An introduction to my blog"
 pubDate: 2025-12-14
+updatedDate: 2025-12-15
+heroImage: "/images/blog/my-first-post.jpg"
 author: "John Doe"
 tags: ["Introduction", "Welcome"]
 draft: false
@@ -125,6 +130,8 @@ The filename becomes the URL slug: `my-first-post.md` → `/blog/my-first-post`
 | `title` | Yes | String | Post title |
 | `pubDate` | Yes | Date | Publication date (YYYY-MM-DD) |
 | `description` | No | String | Short description for SEO/RSS |
+| `updatedDate` | No | Date | Last update date (YYYY-MM-DD), shown if different from pubDate |
+| `heroImage` | No | String | Hero/featured image URL (relative or absolute) |
 | `author` | No | String | Post author (falls back to `blog.default-author`) |
 | `tags` | No | List | Tags for categorization |
 | `draft` | No | Boolean | If true, post is hidden from listing |

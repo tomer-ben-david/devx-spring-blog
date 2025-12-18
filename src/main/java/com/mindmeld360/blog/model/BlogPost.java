@@ -10,6 +10,8 @@ public record BlogPost(
     String content,
     String htmlContent,
     LocalDate pubDate,
+    LocalDate updatedDate,
+    String heroImage,
     String author,
     List<String> tags,
     boolean draft
@@ -29,5 +31,12 @@ public record BlogPost(
 
     public String getUrl() {
         return "/blog/" + slug;
+    }
+
+    /**
+     * Returns the effective modification date (updatedDate if set, otherwise pubDate).
+     */
+    public LocalDate getEffectiveDate() {
+        return updatedDate != null ? updatedDate : pubDate;
     }
 }

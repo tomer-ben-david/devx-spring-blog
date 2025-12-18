@@ -141,9 +141,23 @@ public class BlogService {
         List<String> tags = frontMatter.getOrDefault("tags", List.of());
         boolean draft = "true".equalsIgnoreCase(getFirstValue(frontMatter, "draft"));
 
+        // Parse optional updatedDate
+        String updatedDateStr = getFirstValue(frontMatter, "updatedDate");
+        LocalDate updatedDate = null;
+        if (updatedDateStr != null && !updatedDateStr.isBlank()) {
+            try {
+                updatedDate = LocalDate.parse(updatedDateStr);
+            } catch (DateTimeParseException e) {
+                log.warn("Invalid updatedDate in {}: {}", filename, updatedDateStr);
+            }
+        }
+
+        // Parse optional heroImage
+        String heroImage = getFirstValue(frontMatter, "heroImage");
+
         String htmlContent = htmlRenderer.render(document);
 
-        return new BlogPost(slug, title, description, content, htmlContent, pubDate, author, tags, draft);
+        return new BlogPost(slug, title, description, content, htmlContent, pubDate, updatedDate, heroImage, author, tags, draft);
     }
 
     private String getFirstValue(Map<String, List<String>> frontMatter, String key) {

@@ -2,8 +2,23 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <th:block th:replace="~{fragments/head :: head}"/>
-    <title th:text="${post.title + ' | ' + blogTitle}">Post Title</title>
-    <meta name="description" th:content="${post.description}"/>
+    <title th:text="${pageTitle != null ? pageTitle : (post.title + ' | ' + blogTitle)}">Post Title</title>
+    <meta name="description" th:content="${metaDescription}"/>
+    <link rel="canonical" th:href="${canonicalUrl}"/>
+
+    <!-- Open Graph -->
+    <meta property="og:title" th:content="${ogTitle}"/>
+    <meta property="og:description" th:content="${ogDescription}"/>
+    <meta property="og:type" th:content="${ogType}"/>
+    <meta property="og:url" th:content="${canonicalUrl}"/>
+    <meta th:if="${ogImage != null}" property="og:image" th:content="${ogImage}"/>
+
+    <!-- Article Meta -->
+    <meta th:if="${articlePublishedTime != null}" property="article:published_time" th:content="${articlePublishedTime}"/>
+    <meta th:if="${articleAuthor != null}" property="article:author" th:content="${articleAuthor}"/>
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json" th:utext="${jsonLd}"></script>
 </head>
 <body>
     <th:block th:replace="~{fragments/header :: header}"/>
@@ -11,9 +26,16 @@
     <main class="sb-post-container">
         <article class="sb-post">
             <header class="sb-post-header">
+                <img th:if="${post.heroImage != null and !post.heroImage.isEmpty()}"
+                     th:src="${post.heroImage}"
+                     th:alt="${post.title}"
+                     class="sb-post-hero-image"/>
                 <h1 class="sb-post-title" th:text="${post.title}">Post Title</h1>
                 <div class="sb-post-meta">
                     <time class="sb-post-date" th:text="${#temporals.format(post.pubDate, 'MMMM d, yyyy')}">December 14, 2025</time>
+                    <span th:if="${post.updatedDate != null and post.updatedDate != post.pubDate}" class="sb-post-updated">
+                        (Updated: <time th:text="${#temporals.format(post.updatedDate, 'MMMM d, yyyy')}">December 15, 2025</time>)
+                    </span>
                     <span class="sb-post-author" th:if="${post.author != null and !post.author.isEmpty()}">
                         by <span th:text="${post.author}">Author</span>
                     </span>

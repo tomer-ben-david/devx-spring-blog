@@ -2,7 +2,18 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <th:block th:replace="~{fragments/head :: head}"/>
-    <title th:text="${blogTitle}">Blog</title>
+    <title th:text="${pageTitle != null ? pageTitle : blogTitle}">Blog</title>
+    <meta name="description" th:content="${metaDescription}"/>
+    <link rel="canonical" th:href="${canonicalUrl}"/>
+
+    <!-- Open Graph -->
+    <meta property="og:title" th:content="${ogTitle}"/>
+    <meta property="og:description" th:content="${ogDescription}"/>
+    <meta property="og:type" th:content="${ogType}"/>
+    <meta property="og:url" th:content="${canonicalUrl}"/>
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json" th:utext="${jsonLd}"></script>
 </head>
 <body>
     <th:block th:replace="~{fragments/header :: header}"/>
@@ -15,6 +26,10 @@
 
         <div class="sb-blog-posts">
             <article th:each="post : ${posts}" class="sb-blog-card">
+                <img th:if="${post.heroImage != null and !post.heroImage.isEmpty()}"
+                     th:src="${post.heroImage}"
+                     th:alt="${post.title}"
+                     class="sb-blog-card-image"/>
                 <a th:href="@{/blog/{slug}(slug=${post.slug})}" class="sb-blog-card-link">
                     <h2 class="sb-blog-card-title" th:text="${post.title}">Post Title</h2>
                 </a>
