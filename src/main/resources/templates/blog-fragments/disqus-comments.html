@@ -10,7 +10,7 @@
             };
             (function() {
                 var d = document, s = d.createElement('script');
-                s.src = 'https://' + /*[[${disqusShortname}]]*/ 'SHORTNAME' + '.disqus.com/embed.js';
+                s.src = /*[[${'https://' + disqusShortname + '.disqus.com/embed.js'}]]*/ 'https://example.disqus.com/embed.js';
                 s.setAttribute('data-timestamp', +new Date());
                 (d.head || d.body).appendChild(s);
             })();
