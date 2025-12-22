@@ -123,7 +123,7 @@ Markdown content here...
 - blog-fragments/disqus-comments.html, social-sharing.html
 
 **CSS:**
-- Blog-specific styles in `static/css/shared-blog.css`
+- Blog-specific styles in `static/css/devx-blog.css`
 - All classes prefixed with `sb-` (shared-blog) to avoid conflicts
 
 ## What Stays in Consumer Projects
@@ -146,7 +146,7 @@ Library templates expect these fragments in consumer project:
 <!-- templates/fragments/head.html - must include blog CSS -->
 <head th:fragment="head">
     ...
-    <link rel="stylesheet" th:href="@{/css/shared-blog.css}">
+    <link rel="stylesheet" th:href="@{/css/devx-blog.css}">
 </head>
 ```
 

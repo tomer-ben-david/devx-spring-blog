@@ -70,7 +70,7 @@ The library templates expect these fragments in your project:
 <head th:fragment="head">
     <meta charset="UTF-8">
     <title th:text="${blogTitle}">Blog</title>
-    <link rel="stylesheet" th:href="@{/css/shared-blog.css}">
+    <link rel="stylesheet" th:href="@{/css/devx-blog.css}">
 </head>
 
 <!-- templates/fragments/header.html -->
