@@ -24,10 +24,20 @@ A reusable Spring Boot library for adding blog functionality to your application
 Add to your `pom.xml`:
 
 ```xml
+<repositories>
+    <repository>
+        <id>jitpack</id>
+        <url>https://jitpack.io</url>
+        <snapshots>
+            <enabled>true</enabled>
+        </snapshots>
+    </repository>
+</repositories>
+
 <dependency>
-    <groupId>com.mindmeld360</groupId>
+    <groupId>com.github.tomer-ben-david</groupId>
     <artifactId>devx-spring-blog</artifactId>
-    <version>1.0.0</version>
+    <version>main-SNAPSHOT</version>
 </dependency>
 ```
 

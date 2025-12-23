@@ -20,19 +20,6 @@
         </license>
     </licenses>
 
-    <distributionManagement>
-        <repository>
-            <id>github</id>
-            <name>GitHub Packages</name>
-            <url>https://maven.pkg.github.com/tomer-ben-david/devx-spring-blog</url>
-        </repository>
-        <snapshotRepository>
-            <id>github</id>
-            <name>GitHub Packages</name>
-            <url>https://maven.pkg.github.com/tomer-ben-david/devx-spring-blog</url>
-        </snapshotRepository>
-    </distributionManagement>
-
     <properties>
         <java.version>17</java.version>
         <maven.compiler.source>17</maven.compiler.source>
